@@ -6,21 +6,7 @@ Map.addLayer(boundary);
 //Load Grid Points (Kali Region)
 
 var points = ee.FeatureCollection([
-  ee.Feature(ee.Geometry.Point([79.625, 29.875]), {GridsKali: 'G10'}),
-  ee.Feature(ee.Geometry.Point([79.875, 29.375]), {GridsKali: 'G14'}),
-  ee.Feature(ee.Geometry.Point([79.875, 29.625]), {GridsKali: 'G15'}),
-  ee.Feature(ee.Geometry.Point([79.875, 29.875]), {GridsKali: 'G16'}),
-  ee.Feature(ee.Geometry.Point([80.125, 29.375]), {GridsKali: 'G20'}),
-  ee.Feature(ee.Geometry.Point([80.125, 29.625]), {GridsKali: 'G21'}),
-  ee.Feature(ee.Geometry.Point([80.125, 29.875]), {GridsKali: 'G22'}),
-  ee.Feature(ee.Geometry.Point([80.125, 30.125]), {GridsKali: 'G23'}),
-  ee.Feature(ee.Geometry.Point([80.125, 30.375]), {GridsKali: 'G24'}),
-  ee.Feature(ee.Geometry.Point([80.375, 29.625]), {GridsKali: 'G27'}),
-  ee.Feature(ee.Geometry.Point([80.375, 29.875]), {GridsKali: 'G28'}),
-  ee.Feature(ee.Geometry.Point([80.375, 30.125]), {GridsKali: 'G29'}),
-  ee.Feature(ee.Geometry.Point([80.375, 30.375]), {GridsKali: 'G30'}),
-  ee.Feature(ee.Geometry.Point([80.625, 30.125]), {GridsKali: 'G35'}),
-  ee.Feature(ee.Geometry.Point([80.625, 30.375]), {GridsKali: 'G36'})
+ //////////###########You Points###########//////////
 ]);
 Map.addLayer(points, {color: 'red'}, 'Grid Points');
 //__________________________________________________________________
@@ -231,4 +217,5 @@ Export.image.toDrive({
 
 
 //HEre bilinear interpolation is executed , you can use bicubic by using .resample('bicubic') instead of .resample('bilinear')
+
 
