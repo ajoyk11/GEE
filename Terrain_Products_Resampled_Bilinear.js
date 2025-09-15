@@ -217,6 +217,75 @@ Export.image.toDrive({
 
 
 //HEre bilinear interpolation is executed , you can use bicubic by using .resample('bicubic') instead of .resample('bilinear')
+//_________________________________________________________________________________________________________________________________
+// Or Can be in one CSV by importing Csv
+Map.addLayer(points);
+Map.centerObject(points, {color : 'red'}, 'Points');
+var boundary = points.geometry().convexHull(2000).buffer(25000);// .buffer(2000) use korte pari
+Map.addLayer(boundary, {color: 'green'}, 'Bounding Box');
+var dem = ee.Image("USGS/SRTMGL1_003").clip(boundary);
+var slope = ee.Terrain.slope(dem);
+var aspect = ee.Terrain.aspect(dem);
+var terrainStack = dem.rename('Elevation')
+  .addBands(slope.rename('Slope'))
+  .addBands(aspect.rename('Aspect'));
+//Sample at 30m Resolution
+var sampled_30m = terrainStack.sampleRegions({
+  collection: points,
+  properties: ['distname'],
+  scale: 30,
+  geometries: true
+});
+//Resample to ~0.25° and Sample Again
+var terrainStack_resampled = terrainStack
+  .resample('bilinear')
+  .reproject({
+    crs: 'EPSG:4326',
+    scale: 0.25 * 111320
+  });
+
+var sampled_025deg = terrainStack_resampled.sampleRegions({
+  collection: points,
+  properties: ['distname'],
+  scale: 27830,
+  geometries: true
+});
+
+var joined = sampled_30m.map(function(feature) {
+  var distname = feature.get('distname');
+  var match = sampled_025deg.filter(ee.Filter.eq('distname', distname)).first();
+
+  // Use conditional logic to safely handle missing matches
+  return ee.Feature(ee.Algorithms.If(
+    match,
+    ee.Feature(feature.geometry(), feature.toDictionary())
+      .set({
+        'Elevation_025deg': match.get('Elevation'),
+        'Slope_025deg': match.get('Slope'),
+        'Aspect_025deg': match.get('Aspect'),
+        'longitude': feature.geometry().coordinates().get(0),
+        'latitude': feature.geometry().coordinates().get(1)
+      }),
+    ee.Feature(feature.geometry(), feature.toDictionary())
+      .set({
+        'Elevation_025deg': null,
+        'Slope_025deg': null,
+        'Aspect_025deg': null,
+        'longitude': feature.geometry().coordinates().get(0),
+        'latitude': feature.geometry().coordinates().get(1)
+      })
+  ));
+});
+
+
+
+//Export Final Table
+Export.table.toDrive({
+  collection: joined,
+  description: 'Changthang_Terrain_Combined',
+  fileFormat: 'CSV'
+});
+
 
 
 
