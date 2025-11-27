@@ -6,7 +6,6 @@ Map.centerObject(aoi)
 // Load the ImageCollection
 var ic = ee.ImageCollection("LANDSAT/LC09/C02/T1_TOA")
 .filterBounds(aoi)
-// .filterDate('2021-01-01', '2023-12-31'); // Adjust date range//
 
 // Get the first image and its date
 var firstImg = ic.sort('system:time_start', true).first();
