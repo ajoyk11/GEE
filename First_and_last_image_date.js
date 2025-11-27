@@ -1,4 +1,4 @@
-var aoi = ee.Geometry.Rectangle([88.50, 26, 90.50, 27.00])
+var aoi = ee.Geometry.Rectangle([88.50, 25.75, 90.00, 26.75])
 
 Map.addLayer(aoi)
 Map.centerObject(aoi)
