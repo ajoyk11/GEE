@@ -5,7 +5,7 @@ var aoi = ee.Geometry.Rectangle([77.75, 32.25, 79.5, 34.75]);
 Map.centerObject(aoi);
 Map.addLayer(aoi, {color: 'blue'}, 'AOI');
 //__________________________________________________
-var img = ee.ImageCollection("______________________")
+var img = ee.ImageCollection("CAS/IGSNRR/PML/V2_v018")
 .filterBounds(aoi)
 .filterDate('2025-01-01', '2025-08-01')
 .select('GPP');
