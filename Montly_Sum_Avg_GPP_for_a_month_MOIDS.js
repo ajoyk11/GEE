@@ -13,7 +13,7 @@ var modis = ee.ImageCollection("MODIS/061/MOD17A2HGF")
 // Build list of July GPP images for each year
 var julyList = ee.List([])
 
-for (var yr = 2000; yr <= 2023; yr++) {
+for (var yr = 2021; yr <= 2023; yr++) {
   var start = ee.Date.fromYMD(yr, 7, 1);
   var end   = start.advance(1, "month");
 
@@ -52,7 +52,7 @@ Map.addLayer(julyBandImage.select('GPP_2022_07'),{min: 0, max: 6, palette:['red'
 // __________________________________________
 Export.image.toDrive({
   image: julyBandImage,
-  description: 'MODIS_GPP_July_2000_2023',
+  description: 'Changthang_MODIS_GPP_July_2000_2023',
   folder: 'Earth engine',
   scale: 500,
   crs: 'EPSG:4326',
