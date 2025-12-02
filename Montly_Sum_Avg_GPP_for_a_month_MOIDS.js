@@ -5,7 +5,7 @@ Map.addLayer(aoi)
 // __________________________________________
 var modis = ee.ImageCollection("MODIS/061/MOD17A2HGF")
   .filterBounds(aoi)
-  .filterDate('2000-01-01', '2023-12-31')
+  .filterDate('2021-01-01', '2023-12-31')
   .select('Gpp')
   .map(function(img){ return img.reproject('EPSG:4326', null, 500); }) //reproject
 
