@@ -1,0 +1,11 @@
+var aoi = ee.FeatureCollection('projects/--------')
+
+Export.table.toDrive({
+  collection: aoi,
+  description: 'ADDA_shapefile_export',
+  fileFormat: 'SHP',
+  folder: 'EarthEngineExports',
+  fileNamePrefix: 'ADDA_export',
+  crs: 'EPSG:4326',
+  //selectors: ['id', 'area', 'type'],  //  maxError: 1
+})
