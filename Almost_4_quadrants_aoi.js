@@ -1,4 +1,4 @@
-var aoi_fc = ee.FeatureCollection('projects/ee-ajoyiirs/assets/UttarakhandWGS84');
+var aoi_fc = ee.FeatureCollection('projects/......');
 var aoi    = aoi_fc.geometry();
 
 var bounds   = aoi_fc.bounds().coordinates().get(0);
