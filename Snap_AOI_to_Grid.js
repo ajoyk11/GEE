@@ -1,30 +1,53 @@
-var aoi = ee.FeatureCollection('projects/ajoyiirs/assets/KaliBasin');
+var aoi = ee.FeatureCollection('projects/ajoyiirs/assets/India_Boundary');
 var geom = aoi.geometry();
 
 var step = 0.25;
 
-// snap a single [lon,lat] pair to the 0.25° grid
-function snapPt(pt) {
-  pt = ee.List(pt);                       // <-- cast!
-  var lon = ee.Number(pt.get(0));
-  var lat = ee.Number(pt.get(1));
-  var sLon = lon.divide(step).round().multiply(step);
-  var sLat = lat.divide(step).round().multiply(step);
-  return ee.List([sLon, sLat]);
-}
+// Get AOI bounding box
+var bounds = geom.bounds();
 
-// outer ring of the AOI
-var ring = ee.List(geom.coordinates().get(0));
+// Extract coordinates of bounding box
+var coords = ee.List(bounds.coordinates().get(0));
+var ll = ee.List(coords.get(0)); // lower-left
+var ur = ee.List(coords.get(2)); // upper-right
 
-// snap all vertices
-var snappedRing = ring.map(snapPt);
+var lonMin = ee.Number(ll.get(0)).divide(step).floor().multiply(step);
+var latMin = ee.Number(ll.get(1)).divide(step).floor().multiply(step);
+var lonMax = ee.Number(ur.get(0)).divide(step).ceil().multiply(step);
+var latMax = ee.Number(ur.get(1)).divide(step).ceil().multiply(step);
 
-// rebuild polygon (geodesic:false keeps it axis-aligned)
-var snapped = ee.Geometry.Polygon([snappedRing], null, false)
-  .simplify(0)                           // keep vertices as-is
-  .buffer(0, 1);                         // 1 meter error margin
+// Build sequences
+var lons = ee.List.sequence(lonMin, lonMax.subtract(step), step);
+var lats = ee.List.sequence(latMin, latMax.subtract(step), step);
 
+// Build grid of 0.25° rectangles
+var grid = ee.FeatureCollection(
+  lons.map(function(lon){
+    lon = ee.Number(lon);
+    return lats.map(function(lat){
+      lat = ee.Number(lat);
+      var cell = ee.Geometry.Rectangle([lon, lat, lon.add(step), lat.add(step)], null, false);
+      return ee.Feature(cell);
+    });
+  }).flatten()
+);
 
+// Select only cells that intersect AOI
+var intersecting = grid.filterBounds(geom);
+
+// Merge into one stepped polygon
+var preciseSnapped = intersecting.geometry().dissolve(1).buffer(0, 1);
+
+// Show results
 Map.centerObject(geom);
-Map.addLayer(geom,    {color: 'black'}, 'AOI');
-Map.addLayer(snapped, {color: 'red'},   'Snapped 0.25° AOI');
+Map.addLayer(geom, {color: 'black'}, 'AOI');
+Map.addLayer(preciseSnapped, {color: 'red'}, 'Snapped 0.25° AOI Grid Fit');
+
+var fc = ee.FeatureCollection([ee.Feature(preciseSnapped)]);
+
+Export.table.toDrive({
+  collection: fc,
+  description: 'preciseSnapped',
+  fileNamePrefix: 'India_Snapped_025D',
+  fileFormat: 'GeoJSON'
+});
